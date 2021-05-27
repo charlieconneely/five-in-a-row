@@ -1,4 +1,4 @@
-package Server;
+package Server.networking;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;
@@ -17,6 +17,7 @@ public class WebServer {
     private static final int DEFAULT_PORT = 8081;
     private static final String TASK_ENDPOINT = "/task";
     private static final String STATUS_ENDPOINT = "/status";
+    private static final String JOIN_ENDPOINT = "/join";
 
     private final int port;
     private HttpServer server;
@@ -37,9 +38,8 @@ public class WebServer {
     }
 
     /**
-     * Initialize server
-     * Setup endpoints using HttpContext
-     * Start server
+     * Initializes server and sets up endpoints using HttpContext.
+     * Starts server thread pool.
      */
     public void startServer() {
         try {
@@ -49,10 +49,12 @@ public class WebServer {
         }
 
         HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
+        HttpContext joinContext = server.createContext(JOIN_ENDPOINT);
         HttpContext taskContext = server.createContext(TASK_ENDPOINT);
 
         // Connect endpoints to respective methods.
         statusContext.setHandler(this::handleStatusCheckRequest);
+        joinContext.setHandler(this::handleJoinRequest);
         taskContext.setHandler(this::handleTaskRequest);
 
         // Create concurrent thread pool & start our server.
@@ -73,6 +75,20 @@ public class WebServer {
         System.out.println("Called status endpoint.\n");
 
         String responseMessage = "Server is alive!\n";
+        sendResponse(responseMessage.getBytes(), exchange);
+    }
+
+    private void handleJoinRequest(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
+            exchange.close();
+            return;
+        }
+
+        System.out.println("Called join endpoint.\n");
+
+        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
+        String bodyString = new String(requestBytes);
+        String responseMessage = String.format("Player %s has joined!\n", bodyString);
         sendResponse(responseMessage.getBytes(), exchange);
     }
 

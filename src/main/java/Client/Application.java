@@ -2,6 +2,7 @@ package Client;
 
 import Client.networking.WebClient;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class Application {
@@ -12,22 +13,30 @@ public class Application {
     private static final String TASK_ENDPOINT = "/task";
 
     WebClient client;
+    GameRunner gameRunner;
 
     public Application() {
         this.client = new WebClient();
+        this.gameRunner = new GameRunner();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Application application = new Application();
         String serverAddress = SERVER_ADDRESS + DEFAULT_PORT;
         if (args.length == 1) serverAddress = SERVER_ADDRESS + args[0];
 
         // Perform status check
-        System.out.println(application.sendStatusCheck(serverAddress + STATUS_ENDPOINT));
+        String status = null;
 
-        String task = "10,355";
-        String result = application.sendTasks(serverAddress + TASK_ENDPOINT, task);
-        System.out.println(result);
+        status = application.sendStatusCheck(serverAddress + STATUS_ENDPOINT);
+        System.out.println(status);
+
+        application.startGame(serverAddress);
+    }
+
+    private void startGame(String address) throws IOException {
+        gameRunner.setServerAddress(address);
+        gameRunner.startGame();
     }
 
     public String sendTasks(String address, String task) {
@@ -36,7 +45,7 @@ public class Application {
         return future.join();
     }
 
-    public String sendStatusCheck(String address) {
+    public String sendStatusCheck(String address) throws IOException {
         CompletableFuture<String> future = client.sendStatusCheck(address);
         return future.join();
     }

@@ -31,7 +31,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>Server.WebServer</mainClass>
+                                    <mainClass>Server.networking.WebServer</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
