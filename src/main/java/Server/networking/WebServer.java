@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
@@ -17,6 +18,7 @@ public class WebServer {
     private static final String STATUS_ENDPOINT = "/status";
     private static final String JOIN_ENDPOINT = "/join";
     private static final String GAME_STATE_ENDPOINT = "/state";
+    private static final String PLAYER_MOVE_ENDPOINT = "/move";
 
     private final int port;
     private HttpServer server;
@@ -52,11 +54,13 @@ public class WebServer {
         HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
         HttpContext joinContext = server.createContext(JOIN_ENDPOINT);
         HttpContext stateContext = server.createContext(GAME_STATE_ENDPOINT);
+        HttpContext moveContext = server.createContext(PLAYER_MOVE_ENDPOINT);
 
         // Connect endpoints to respective methods.
         statusContext.setHandler(this::handleStatusCheckRequest);
         joinContext.setHandler(this::handleJoinRequest);
         stateContext.setHandler(this::handleGameStateCheckRequest);
+        moveContext.setHandler(this::handlePlayerMoveRequest);
 
         // Create concurrent thread pool & start our server.
         server.setExecutor(Executors.newFixedThreadPool(8));
@@ -84,8 +88,21 @@ public class WebServer {
         }
         System.out.println("Called game state endpoint.\n");
         addGameStateToHeaders(exchange);
-        String fillerMessage = "returning state";
-        sendResponse(fillerMessage.getBytes(), exchange);
+        String boardState = gameManager.getBoardStateAsText();
+        sendResponse(boardState.getBytes(), exchange);
+    }
+
+    private void handlePlayerMoveRequest(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
+            exchange.close();
+            return;
+        }
+        System.out.println("Called move endpoint.\n");
+        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
+        String bodyString = new String(requestBytes);
+        int columnChoice = Integer.parseInt(bodyString);
+
+        gameManager.handlePlayerMove(columnChoice-1);
     }
 
     private void handleJoinRequest(HttpExchange exchange) throws IOException {

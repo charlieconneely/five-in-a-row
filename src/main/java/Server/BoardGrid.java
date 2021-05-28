@@ -47,7 +47,7 @@ public class BoardGrid {
      * @param col Column chosen by player
      * @param playerID
      */
-    private void makeMove(int col, int playerID) {
+    public void makeMove(int col, int playerID) {
         for (int i = ROWS-1; i >= 0; i--) {
             if (matrix[i][col] == -1) {
                 matrix[i][col] = playerID;

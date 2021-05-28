@@ -1,11 +1,7 @@
 package Client.networking;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
  * Handles our HTTP communication with the server.
  */
 public class WebClient {
+
     private HttpClient httpClient;
 
     public WebClient() {
@@ -25,8 +22,8 @@ public class WebClient {
     /**
      * Sends asynchronous requests to the HTTP server.
      *
-     * @param url
-     * @param requestPayload
+     * @param url Server address
+     * @param requestPayload Message data
      * @return CompletableFuture<String> Http Response body
      */
     public CompletableFuture<String> sendTask(String url, byte[] requestPayload) {
@@ -35,11 +32,14 @@ public class WebClient {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
     }
 
-    public HttpHeaders sendGameStateCheck(String url) {
+    public void sendMove(String url, byte[] requestPayload) {
+        HttpRequest request = createHttpPostRequest(url, requestPayload);
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    public CompletableFuture<HttpResponse<String>> sendGameStateCheck(String url) {
         HttpRequest request = createHttpGetRequest(url);
-        CompletableFuture<HttpResponse<String>> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-        HttpHeaders headers  = response.join().headers();
-        return headers;
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
     public CompletableFuture<String> sendStatusCheck(String url) {
