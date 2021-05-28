@@ -15,6 +15,7 @@ public class GameRunner {
     private static final String STATE_CHECK_ENDPOINT = "/state";
 
     private boolean isOurTurn = false;
+    private boolean waitingForOpponent = true;
     private String serverAddress;
     Player player;
     WebClient client;
@@ -33,6 +34,8 @@ public class GameRunner {
             System.exit(0);
         }
         System.out.println(joinResult);
+        checkGameState();
+        if (waitingForOpponent) System.out.println("Waiting for opponent...\n");
         runGame();
     }
 
@@ -44,7 +47,7 @@ public class GameRunner {
                 e.printStackTrace();
             }
             checkGameState();
-            if (!isOurTurn) continue;
+            if (!isOurTurn || waitingForOpponent) continue;
             makeNextMove();
         }
     }
@@ -76,6 +79,8 @@ public class GameRunner {
         headers.map().forEach((k, v) -> {
             if (k.equalsIgnoreCase("X-Player-Turn")) {
                 isOurTurn = (v.get(0).equalsIgnoreCase(player.getName()));
+            } else if (k.equalsIgnoreCase("X-Waiting"))  {
+                waitingForOpponent = (v.get(0).equalsIgnoreCase("true"));
             }
         });
     }

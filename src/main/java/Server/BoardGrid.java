@@ -8,7 +8,7 @@ public class BoardGrid {
     private int[][] matrix = new int[ROWS][COLS];
 
     public BoardGrid () {
-
+        initializeMatrix();
     }
 
     public static void main(String[] args) {
@@ -23,6 +23,21 @@ public class BoardGrid {
         System.out.println("\n*Player 0 makes move*\n");
         grid.makeMove(3,0);
         grid.printMatrix();
+    }
+
+    /**
+     * Returns the grid matrix as a String object to be sent to a Client.
+     */
+    public String getGridAsText() {
+        String fullGrid = "";
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                String symbol = classifySymbol(matrix[i][j]);
+                fullGrid += String.format("[%s]", symbol);
+            }
+            fullGrid += "\n";
+        }
+        return fullGrid;
     }
 
     /**
