@@ -5,7 +5,9 @@ import java.util.List;
 
 public class GameManager {
 
-    List<String> players = new ArrayList<String>();
+    List<String> players = new ArrayList<>();
+    // represents which players turn it is - players[0] or players[1]
+    private int playerTurn = 0;
 
     public GameManager() {
     }
@@ -20,6 +22,10 @@ public class GameManager {
             allPlayers += p + " ";
         }
         return allPlayers;
+    }
+
+    public String getPlayerTurn() {
+        return players.get(playerTurn);
     }
 
     public int numberOfPlayers() {

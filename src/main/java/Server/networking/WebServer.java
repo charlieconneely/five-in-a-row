@@ -19,6 +19,7 @@ public class WebServer {
     private static final String TASK_ENDPOINT = "/task";
     private static final String STATUS_ENDPOINT = "/status";
     private static final String JOIN_ENDPOINT = "/join";
+    private static final String GAME_STATE_ENDPOINT = "/state";
 
     private final int port;
     private HttpServer server;
@@ -54,11 +55,13 @@ public class WebServer {
         HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
         HttpContext joinContext = server.createContext(JOIN_ENDPOINT);
         HttpContext taskContext = server.createContext(TASK_ENDPOINT);
+        HttpContext stateContext = server.createContext(GAME_STATE_ENDPOINT);
 
         // Connect endpoints to respective methods.
         statusContext.setHandler(this::handleStatusCheckRequest);
         joinContext.setHandler(this::handleJoinRequest);
         taskContext.setHandler(this::handleTaskRequest);
+        stateContext.setHandler(this::handleGameStateCheckRequest);
 
         // Create concurrent thread pool & start our server.
         server.setExecutor(Executors.newFixedThreadPool(8));
@@ -66,7 +69,7 @@ public class WebServer {
     }
 
     /**
-     * Handles status requests from client.
+     * Handles server status requests from client.
      * @param exchange HttpExchange object.
      */
     private void handleStatusCheckRequest(HttpExchange exchange) throws IOException {
@@ -77,8 +80,24 @@ public class WebServer {
 
         System.out.println("Called status endpoint.\n");
 
+        String message = "player 1";
+        exchange.getResponseHeaders().put("X-Game-Info", Arrays.asList(message));
+
         String responseMessage = "Server is alive!\n";
         sendResponse(responseMessage.getBytes(), exchange);
+    }
+
+    private void handleGameStateCheckRequest(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equalsIgnoreCase("get")) {
+            exchange.close();
+            return;
+        }
+        System.out.println("Called game state endpoint.\n");
+        // Get the name of player whose turn it is.
+        String name = gameManager.getPlayerTurn();
+        exchange.getResponseHeaders().put("X-Player-Turn", Arrays.asList(name));
+        String fillerMessage = "returning state";
+        sendResponse(fillerMessage.getBytes(), exchange);
     }
 
     private void handleJoinRequest(HttpExchange exchange) throws IOException {

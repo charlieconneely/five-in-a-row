@@ -37,7 +37,7 @@ public class Application {
 
     private void startGame(String address) throws IOException {
         gameRunner.setServerAddress(address);
-        gameRunner.startGame();
+        gameRunner.joinGame();
     }
 
     public String sendTasks(String address, String task) {

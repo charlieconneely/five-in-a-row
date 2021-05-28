@@ -1,7 +1,11 @@
 package Client.networking;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +33,13 @@ public class WebClient {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
         // Send our request asynchronously and extract body from HTTP response.
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    public HttpHeaders sendGameStateCheck(String url) {
+        HttpRequest request = createHttpGetRequest(url);
+        CompletableFuture<HttpResponse<String>> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        HttpHeaders headers  = response.join().headers();
+        return headers;
     }
 
     public CompletableFuture<String> sendStatusCheck(String url) {
