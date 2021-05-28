@@ -27,14 +27,15 @@ public class GameRunner {
         System.out.println(result);
     }
 
-    public String sendJoinRequest(String address, String task) {
+    private String sendJoinRequest(String address, String task) {
         byte[] requestPayload = task.getBytes();
         CompletableFuture<String> future = client.sendTask(address, requestPayload);
         return future.join();
     }
 
-    public void setServerAddress(String address) {
-        this.serverAddress = address;
+    private String sendGameStateCheck(String address) {
+
+        return null;
     }
 
     /**
@@ -51,4 +52,7 @@ public class GameRunner {
         System.out.println(String.format("Welcome %s!", name));
     }
 
+    public void setServerAddress(String address) {
+        this.serverAddress = address;
+    }
 }

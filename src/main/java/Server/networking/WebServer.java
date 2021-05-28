@@ -1,5 +1,6 @@
 package Server.networking;
 
+import Server.GameManager;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -21,9 +22,11 @@ public class WebServer {
 
     private final int port;
     private HttpServer server;
+    private GameManager gameManager;
 
     public WebServer (int port) {
         this.port = port;
+        gameManager = new GameManager();
     }
 
     public static void main(String[] args) {
@@ -83,12 +86,22 @@ public class WebServer {
             exchange.close();
             return;
         }
-
+        String responseMessage = "";
         System.out.println("Called join endpoint.\n");
 
+        if (gameIsFull()) {
+            responseMessage = "Sorry, the game is full.";
+            sendResponse(responseMessage.getBytes(), exchange);
+            return;
+        }
+
+        // Get bytes array containing name from request body.
         byte[] requestBytes = exchange.getRequestBody().readAllBytes();
+        // Convert to String.
         String bodyString = new String(requestBytes);
-        String responseMessage = String.format("Player %s has joined!\n", bodyString);
+        gameManager.addPlayer(bodyString);
+        responseMessage = String.format("[SERVER] Player %s has joined!\n All players: %s.\n",
+                bodyString, gameManager.getPlayers());
         sendResponse(responseMessage.getBytes(), exchange);
     }
 
@@ -140,5 +153,9 @@ public class WebServer {
     private boolean isDebugHeaderTrue(Headers headers) {
         return (headers.containsKey("X-Debug")
                 && headers.get("X-Debug").get(0).equalsIgnoreCase("true"));
+    }
+
+    private boolean gameIsFull() {
+        return (gameManager.numberOfPlayers() == 2);
     }
 }

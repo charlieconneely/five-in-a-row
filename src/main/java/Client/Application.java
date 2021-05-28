@@ -23,6 +23,7 @@ public class Application {
     public static void main(String[] args) throws IOException {
         Application application = new Application();
         String serverAddress = SERVER_ADDRESS + DEFAULT_PORT;
+        // Port as optional cli argument
         if (args.length == 1) serverAddress = SERVER_ADDRESS + args[0];
 
         // Perform status check
