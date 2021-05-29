@@ -42,6 +42,8 @@ public class GameManager {
 
     public void removePlayer(String playerName) {
         players.remove(playerName);
+        // reset board.
+        boardGrid.initializeMatrix();
         if (players.size() == 1) playerTurn = 0;
     }
 

@@ -16,7 +16,7 @@ public class ShutdownHook extends Thread {
         this.serverAddress = address + SHUTDOWN_ENDPOINT;
     }
 
-    public void run () {
+    public void run() {
         if (clientDidNotJoinGame()) return;
         System.out.println("Running shutdown hook...");
         client.sendShutDownRequest(serverAddress, gameRunner.getPlayerName().getBytes());
