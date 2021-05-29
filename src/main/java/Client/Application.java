@@ -16,18 +16,21 @@ public class Application {
 
     public Application() {
         this.client = new WebClient();
-        this.gameRunner = new GameRunner();
+        this.gameRunner = GameRunner.getInstance();
     }
 
     public static void main(String[] args) throws IOException {
         Application application = new Application();
+
         String serverAddress = SERVER_ADDRESS + DEFAULT_PORT;
         // Port as optional cli argument
         if (args.length == 1) serverAddress = SERVER_ADDRESS + args[0];
 
+        Runtime runtime = Runtime.getRuntime();
+        runtime.addShutdownHook(new ShutdownHook(application.client, serverAddress));
+
         // Perform status check
-        String status = null;
-        status = application.sendStatusCheck(serverAddress + STATUS_ENDPOINT);
+        String status = application.sendStatusCheck(serverAddress + STATUS_ENDPOINT);
         System.out.println(status);
 
         application.startGame(serverAddress);

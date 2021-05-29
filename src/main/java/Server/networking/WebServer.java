@@ -7,9 +7,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Executors;
 
 public class WebServer {
@@ -19,10 +18,11 @@ public class WebServer {
     private static final String JOIN_ENDPOINT = "/join";
     private static final String GAME_STATE_ENDPOINT = "/state";
     private static final String PLAYER_MOVE_ENDPOINT = "/move";
+    private static final String PLAYER_QUIT_ENDPOINT = "/quit";
 
     private final int port;
     private HttpServer server;
-    private GameManager gameManager;
+    GameManager gameManager;
 
     public WebServer(int port) {
         this.port = port;
@@ -50,21 +50,25 @@ public class WebServer {
         } catch(IOException e) {
             e.printStackTrace();
         }
+        setupHttpContextObjects();
+        // Create concurrent thread pool & start our server.
+        server.setExecutor(Executors.newFixedThreadPool(8));
+        server.start();
+    }
 
+    private void setupHttpContextObjects() {
         HttpContext statusContext = server.createContext(STATUS_ENDPOINT);
         HttpContext joinContext = server.createContext(JOIN_ENDPOINT);
         HttpContext stateContext = server.createContext(GAME_STATE_ENDPOINT);
         HttpContext moveContext = server.createContext(PLAYER_MOVE_ENDPOINT);
+        HttpContext quitContext = server.createContext(PLAYER_QUIT_ENDPOINT);
 
         // Connect endpoints to respective methods.
         statusContext.setHandler(this::handleStatusCheckRequest);
         joinContext.setHandler(this::handleJoinRequest);
         stateContext.setHandler(this::handleGameStateCheckRequest);
         moveContext.setHandler(this::handlePlayerMoveRequest);
-
-        // Create concurrent thread pool & start our server.
-        server.setExecutor(Executors.newFixedThreadPool(8));
-        server.start();
+        quitContext.setHandler(this::handleQuitRequest);
     }
 
     /**
@@ -98,9 +102,8 @@ public class WebServer {
             return;
         }
         System.out.println("Called move endpoint.\n");
-        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
-        String bodyString = new String(requestBytes);
-        int columnChoice = Integer.parseInt(bodyString);
+        String playerMove = getStringFromRequestBody(exchange);
+        int columnChoice = Integer.parseInt(playerMove);
 
         gameManager.handlePlayerMove(columnChoice-1);
     }
@@ -110,22 +113,33 @@ public class WebServer {
             exchange.close();
             return;
         }
-        String responseMessage = "";
         System.out.println("Called join endpoint.\n");
+        String responseMessage = "";
 
         if (gameIsFull()) {
             responseMessage = "Sorry, the game is full.";
             sendResponse(responseMessage.getBytes(), exchange);
             return;
         }
+        String clientName = getStringFromRequestBody(exchange);
+        gameManager.addPlayer(clientName);
+        responseMessage = String.format("Player %s has joined!\nAll players: %s\n",
+                clientName, gameManager.getPlayers());
+        sendResponse(responseMessage.getBytes(), exchange);
+    }
 
-        // Get bytes array containing name from request body.
-        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
-        // Convert to String.
-        String bodyString = new String(requestBytes);
-        gameManager.addPlayer(bodyString);
-        responseMessage = String.format("Player %s has joined!\nAll players: %s.\n",
-                bodyString, gameManager.getPlayers());
+    private void handleQuitRequest(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
+            exchange.close();
+            return;
+        }
+        System.out.println("Called quit endpoint\n");
+
+        String clientName = getStringFromRequestBody(exchange);
+        gameManager.removePlayer(clientName);
+        addGameStateToHeaders(exchange);
+
+        String responseMessage = "Shutdown successful.";
         sendResponse(responseMessage.getBytes(), exchange);
     }
 
@@ -141,8 +155,19 @@ public class WebServer {
         // Get the name of player whose turn it is.
         String name = gameManager.getPlayerTurn();
         String waiting = String.valueOf(!gameIsFull());
-        exchange.getResponseHeaders().put("X-Player-Turn", Arrays.asList(name));
-        exchange.getResponseHeaders().put("X-Waiting", Arrays.asList(waiting));
+        exchange.getResponseHeaders().put("X-Player-Turn", Collections.singletonList(name));
+        exchange.getResponseHeaders().put("X-Waiting", Collections.singletonList(waiting));
+    }
+
+    /**
+     * Get bytes array from request body and return data as String.
+     *
+     * @param exchange HttpExchange Object.
+     * @return String Request Body data.
+     */
+    private String getStringFromRequestBody(HttpExchange exchange) throws IOException {
+        byte[] requestBytes = exchange.getRequestBody().readAllBytes();
+        return new String(requestBytes);
     }
 
     private boolean gameIsFull() {

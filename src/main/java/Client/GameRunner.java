@@ -11,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class GameRunner {
+    private static GameRunner gameRunner = new GameRunner();
+
     private static final String DEFAULT_ADDRESS = "http://localhost:8081";
     private static final String JOIN_ENDPOINT = "/join";
     private static final String STATE_CHECK_ENDPOINT = "/state";
@@ -22,13 +24,15 @@ public class GameRunner {
     private boolean isOurTurn = false;
     private boolean waitingForOpponent = true;
     private boolean deciding = false;
+    private boolean isGameFull = false;
+    private boolean displayedWaitingMessage = false;
     private String serverAddress;
     private String matrixAsText = "";
 
     private WebClient client;
     private Player player;
 
-    public GameRunner() {
+    private GameRunner() {
         this.client = new WebClient();
         this.player = new Player(null);
         this.serverAddress = DEFAULT_ADDRESS;
@@ -38,12 +42,12 @@ public class GameRunner {
         getPlayerNameAsInput();
         String joinResult = sendJoinRequest(this.serverAddress + JOIN_ENDPOINT, player.getName());
         if (joinResult.contains("full")) {
+            this.isGameFull = true;
             System.out.println(joinResult);
             System.exit(0);
         }
         System.out.println(joinResult);
         checkGameState();
-        if (waitingForOpponent) System.out.println("Waiting for opponent to join...\n");
         runGame();
     }
 
@@ -54,8 +58,8 @@ public class GameRunner {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            checkGameState();
-            if (!isOurTurn || waitingForOpponent || deciding) continue;
+            conditionalWaitingMessage();
+            if (!timeToMakeAMove()) continue;
             System.out.println(matrixAsText);
             makeNextMove();
         }
@@ -79,17 +83,28 @@ public class GameRunner {
         analyseHeaders(headers);
     }
 
+    /**
+     * Request column choice from the command line.
+     * Send choice to server.
+     */
     private void makeNextMove() throws IOException {
-        this.deciding = true;
+        deciding = true;
+        String choice = requestColumnChoice();
+        // recheck response headers
+        checkGameState();
+        // if opponent has not left (!waiting) - send move
+        if (!waitingForOpponent) client.sendMove(this.serverAddress + MOVE_ENDPOINT, choice.getBytes());
+        deciding = displayedWaitingMessage = false;
+    }
+
+    private String requestColumnChoice() throws IOException {
         String chosenColumn = "-1";
         String message = String.format("It's your turn %s, please enter column (1-9): ", player.getName());
         while (Integer.parseInt(chosenColumn) > 9 ||
-            Integer.parseInt(chosenColumn) < 1) {
+                Integer.parseInt(chosenColumn) < 1) {
             chosenColumn = getInput(message);
         }
-        client.sendMove(this.serverAddress + MOVE_ENDPOINT, chosenColumn.getBytes());
-        System.out.println("Waiting for opponent...");
-        this.deciding = false;
+        return chosenColumn;
     }
 
     /**
@@ -109,8 +124,6 @@ public class GameRunner {
 
     /**
      * Retrieve the user's name through the command line.
-     *
-     * @throws IOException
      */
     private void getPlayerNameAsInput() throws IOException {
         String name = getInput("Enter your name:");
@@ -118,14 +131,37 @@ public class GameRunner {
         System.out.printf("Welcome %s!%n", name);
     }
 
-    private String getInput(String inputMessage) throws IOException {
-        System.out.println(inputMessage);
+    private String getInput(String promptMessage) throws IOException {
+        System.out.println(promptMessage);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(System.in));
         return reader.readLine();
     }
 
+    /**
+     * Checks response headers and displays wait message accordingly.
+     */
+    private void conditionalWaitingMessage() {
+        checkGameState();
+        if (waitingForOpponent && !displayedWaitingMessage) {
+            System.out.println("Waiting for opponent to join...\n");
+            displayedWaitingMessage = true;
+        }
+    }
+
+    private boolean timeToMakeAMove() {
+        return (isOurTurn && !waitingForOpponent && !deciding);
+    }
+
+    public String getPlayerName() { return player.getName(); }
+
+    public boolean gameIsFull() { return this.isGameFull; }
+
     public void setServerAddress(String address) {
         this.serverAddress = address;
+    }
+
+    public static GameRunner getInstance() {
+        return gameRunner;
     }
 }

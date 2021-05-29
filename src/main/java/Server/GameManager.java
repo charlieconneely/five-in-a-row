@@ -1,7 +1,6 @@
 package Server;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 public class GameManager {
@@ -14,10 +13,6 @@ public class GameManager {
 
     public GameManager() {
         boardGrid = new BoardGrid();
-    }
-
-    public void addPlayer(String playerName) {
-        players.add(playerName);
     }
 
     public String getPlayers() {
@@ -33,6 +28,23 @@ public class GameManager {
         switchPlayerTurn();
     }
 
+    private void switchPlayerTurn() {
+        if (playerTurn == 0) {
+            playerTurn = 1;
+        } else {
+            playerTurn = 0;
+        }
+    }
+
+    public void addPlayer(String playerName) {
+        players.add(playerName);
+    }
+
+    public void removePlayer(String playerName) {
+        players.remove(playerName);
+        if (players.size() == 1) playerTurn = 0;
+    }
+
     public String getBoardStateAsText() {
         return boardGrid.getGridAsText();
     }
@@ -43,13 +55,5 @@ public class GameManager {
 
     public int numberOfPlayers() {
         return players.size();
-    }
-
-    private void switchPlayerTurn() {
-        if (playerTurn == 0) {
-            playerTurn = 1;
-        } else {
-            playerTurn = 0;
-        }
     }
 }

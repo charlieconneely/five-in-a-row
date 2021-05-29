@@ -1,5 +1,6 @@
 package Client.networking;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -24,17 +25,12 @@ public class WebClient {
      *
      * @param url Server address
      * @param requestPayload Message data
-     * @return CompletableFuture<String> Http Response body
+     * @return CompletableFuture<String> Http Response
      */
     public CompletableFuture<String> sendTask(String url, byte[] requestPayload) {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
         // Send our request asynchronously and extract body from HTTP response.
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
-    }
-
-    public void sendMove(String url, byte[] requestPayload) {
-        HttpRequest request = createHttpPostRequest(url, requestPayload);
-        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
     }
 
     public CompletableFuture<HttpResponse<String>> sendGameStateCheck(String url) {
@@ -46,6 +42,27 @@ public class WebClient {
         HttpRequest request = createHttpGetRequest(url);
         // Send our request asynchronously and extract body from HTTP response.
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    public void sendMove(String url, byte[] requestPayload) {
+        HttpRequest request = createHttpPostRequest(url, requestPayload);
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    /**
+     * Sends synchronous POST request to the server on client shutdown.
+     *
+     * @param url Server address
+     * @param requestPayload Message data
+     */
+    public void sendShutDownRequest(String url, byte[] requestPayload) {
+        HttpRequest request = createHttpPostRequest(url, requestPayload);
+        System.out.println("Shutting down...");
+        try {
+            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
