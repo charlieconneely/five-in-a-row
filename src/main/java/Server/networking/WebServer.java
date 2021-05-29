@@ -154,9 +154,11 @@ public class WebServer {
     private void addGameStateToHeaders(HttpExchange exchange) {
         // Get the name of player whose turn it is.
         String name = gameManager.getPlayerTurn();
+        String winner = gameManager.getWinner();
         String waiting = String.valueOf(!gameIsFull());
         exchange.getResponseHeaders().put("X-Player-Turn", Collections.singletonList(name));
         exchange.getResponseHeaders().put("X-Waiting", Collections.singletonList(waiting));
+        exchange.getResponseHeaders().put("X-Winner", Collections.singletonList(winner));
     }
 
     /**

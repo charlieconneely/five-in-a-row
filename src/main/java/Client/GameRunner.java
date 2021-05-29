@@ -20,12 +20,14 @@ public class GameRunner {
 
     private static final String PLAYER_TURN_HEADER = "X-Player-Turn";
     private static final String WAITING_HEADER = "X-Waiting";
+    private static final String WINNER_HEADER = "X-Winner";
 
     private boolean isOurTurn = false;
     private boolean waitingForOpponent = true;
     private boolean deciding = false;
     private boolean isGameFull = false;
     private boolean displayedWaitingMessage = false;
+    private boolean winnerAnnounced = false;
     private String serverAddress;
     private String matrixAsText = "";
 
@@ -118,8 +120,23 @@ public class GameRunner {
                 isOurTurn = (v.get(0).equalsIgnoreCase(player.getName()));
             } else if (k.equalsIgnoreCase(WAITING_HEADER))  {
                 waitingForOpponent = (v.get(0).equalsIgnoreCase("true"));
+            } else if (k.equalsIgnoreCase(WINNER_HEADER)) {
+                if (v.get(0).equals("")) return;
+                announceWinner(v.get(0));
             }
         });
+    }
+
+    private void announceWinner(String name) {
+        String message;
+        winnerAnnounced = true;
+        if (name.equals(player.getName())) {
+            message = "\nCongratulation!! You won the game!\n";
+        } else {
+            message = String.format("\nSorry - %s has won the game.\n", name);
+        }
+        System.out.println(message);
+        System.exit(0);
     }
 
     /**
@@ -157,9 +174,9 @@ public class GameRunner {
 
     public boolean gameIsFull() { return this.isGameFull; }
 
-    public void setServerAddress(String address) {
-        this.serverAddress = address;
-    }
+    public boolean getIsWinnerAnnounced() { return this.winnerAnnounced; }
+
+    public void setServerAddress(String address) { this.serverAddress = address; }
 
     public static GameRunner getInstance() {
         return gameRunner;

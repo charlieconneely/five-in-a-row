@@ -8,11 +8,11 @@ public class GameManager {
     List<String> players = new ArrayList<>();
     // represents which players turn it is - players[0] or players[1]
     private int playerTurn = 0;
-
+    private String winner = "";
     private BoardGrid boardGrid;
 
     public GameManager() {
-        boardGrid = new BoardGrid();
+        boardGrid = new BoardGrid(this);
     }
 
     public String getPlayers() {
@@ -47,6 +47,14 @@ public class GameManager {
         if (players.size() == 1) playerTurn = 0;
     }
 
+    public void setWinner(int id) {
+        this.winner = players.get(id);
+    }
+
+    public String getWinner() {
+        return this.winner;
+    }
+
     public String getBoardStateAsText() {
         return boardGrid.getGridAsText();
     }
@@ -54,6 +62,7 @@ public class GameManager {
     public String getPlayerTurn() {
         return players.get(playerTurn);
     }
+
 
     public int numberOfPlayers() {
         return players.size();

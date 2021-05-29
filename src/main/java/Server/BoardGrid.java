@@ -6,30 +6,31 @@ public class BoardGrid {
     private final int ROWS = 6;
     private final int COLS = 9;
 
+    private GameManager gameManager;
     private int[][] matrix = new int[ROWS][COLS];
-
     private int playerID;
 
-    public BoardGrid () {
+    public BoardGrid (GameManager gameManager) {
+        this.gameManager = gameManager;
         initializeMatrix();
     }
 
     public static void main(String[] args) {
-        BoardGrid grid = new BoardGrid();
-        grid.initializeMatrix();
-
-        int height = 4;
-        int col = 4;
-
-        for (int j = 0; j < 5; j++) {
-            for (int i = 0; i <= height; i++) {
-                grid.makeMove(col, 1);
-            }
-            height--;
-            col++;
-        }
-
-        grid.printMatrix();
+//        BoardGrid grid = new BoardGrid();
+//        grid.initializeMatrix();
+//
+//        int height = 4;
+//        int col = 4;
+//
+//        for (int j = 0; j < 5; j++) {
+//            for (int i = 0; i <= height; i++) {
+//                grid.makeMove(col, 1);
+//            }
+//            height--;
+//            col++;
+//        }
+//
+//        grid.printMatrix();
     }
 
     /**
@@ -86,7 +87,7 @@ public class BoardGrid {
                 return;
             }
         }
-        if (counter == 5) System.out.println("\nWinner!\n");
+        if (counter == 5) announceWinner();
     }
 
     /**
@@ -101,10 +102,7 @@ public class BoardGrid {
             } else {
                 counter = 0;
             }
-            if (counter == WIN_LENGTH) {
-                System.out.println("\nWinner!\n");
-                return;
-            }
+            if (counter == WIN_LENGTH) announceWinner();
         }
     }
 
@@ -150,10 +148,7 @@ public class BoardGrid {
             } else {
                 counter = 0;
             }
-            if (counter == 5) {
-                System.out.println("\nWinner!\n");
-                return;
-            }
+            if (counter == 5) announceWinner();
             r--;
         }
     }
@@ -204,5 +199,9 @@ public class BoardGrid {
             default:
                 return " ";
         }
+    }
+
+    private void announceWinner() {
+        gameManager.setWinner(playerID);
     }
 }
