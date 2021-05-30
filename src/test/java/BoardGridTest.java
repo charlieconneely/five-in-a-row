@@ -8,25 +8,20 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+// Allows us to mock classes
+@ExtendWith(MockitoExtension.class)
 public class BoardGridTest {
 
     @Mock private GameManager gameManager;
-    private AutoCloseable autoCloseable;
     private BoardGrid boardGrid;
 
     @BeforeEach
     void setUp() {
-        // Create mock classes
-        autoCloseable = MockitoAnnotations.openMocks(this);
         boardGrid = new BoardGrid(gameManager);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
     }
 
     @Test

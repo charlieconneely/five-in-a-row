@@ -1,5 +1,6 @@
 package Server.networking;
 
+import Server.BoardGrid;
 import Server.GameManager;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;

@@ -9,10 +9,10 @@ public class GameManager {
     // represents which players turn it is - players[0] or players[1]
     private int playerTurn = 0;
     private String winner = "";
-    private BoardGrid boardGrid;
+    private BoardGrid boardGrid = new BoardGrid(this);
 
     public GameManager() {
-        boardGrid = new BoardGrid(this);
+        setBoardGrid(boardGrid);
     }
 
     public String getPlayers() {
@@ -47,6 +47,10 @@ public class GameManager {
         if (players.size() == 1) playerTurn = 0;
     }
 
+    public void setBoardGrid(BoardGrid grid) {
+        this.boardGrid = grid;
+    }
+
     public void setWinner(int id) {
         this.winner = players.get(id);
     }
@@ -62,7 +66,6 @@ public class GameManager {
     public String getPlayerTurn() {
         return players.get(playerTurn);
     }
-
 
     public int numberOfPlayers() {
         return players.size();
