@@ -15,24 +15,6 @@ public class BoardGrid {
         initializeMatrix();
     }
 
-    public static void main(String[] args) {
-//        BoardGrid grid = new BoardGrid();
-//        grid.initializeMatrix();
-//
-//        int height = 4;
-//        int col = 4;
-//
-//        for (int j = 0; j < 5; j++) {
-//            for (int i = 0; i <= height; i++) {
-//                grid.makeMove(col, 1);
-//            }
-//            height--;
-//            col++;
-//        }
-//
-//        grid.printMatrix();
-    }
-
     /**
      * Returns the grid matrix as a String object to be sent to a Client.
      */
@@ -68,13 +50,29 @@ public class BoardGrid {
     }
 
     /**
+     * Initialize each position with default value
+     * (-1 printed as empty string)
+     */
+    public void initializeMatrix() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                matrix[i][j] = -1;
+            }
+        }
+    }
+
+    public int getValueAtPosition(int row, int col) {
+        return matrix[row][col];
+    }
+
+    /**
      * Takes in player ID (0 or 1) or default -1 and returns
      * the respective character to display on console.
      *
      * @param number player ID
      * @return String 'x', 'o', or ' '.
      */
-    public String classifySymbol(int number) {
+    private String classifySymbol(int number) {
         switch (number) {
             case 0:
                 return "x";
@@ -134,9 +132,9 @@ public class BoardGrid {
      * Traverse grid from left to middle, searching each ascending diagonal line.
      */
     private void searchAscending() {
-        searchLine(ROWS-2, 0);
+        searchAscLine(ROWS-2, 0);
         for (int i = 0; i < WIN_LENGTH; i++) {
-            searchLine(ROWS-1, i);
+            searchAscLine(ROWS-1, i);
         }
     }
 
@@ -144,19 +142,19 @@ public class BoardGrid {
      * Traverse grid from right to middle, searching each descending diagonal line.
      */
     private void searchDescending() {
-        searchLine(ROWS-2, 8);
+        searchDescLine(ROWS-2, 8);
         for (int col = COLS-1; col > WIN_LENGTH-1; col--) {
-            searchLine(ROWS-1, col);
+            searchDescLine(ROWS-1, col);
         }
     }
 
     /**
-     * Search individual diagonal lines.
+     * Search individual ascending diagonal lines.
      *
      * @param startingRow Row to start from.
      * @param startingCol Column to start from.
      */
-    private void searchLine(int startingRow, int startingCol) {
+    private void searchAscLine(int startingRow, int startingCol) {
         int counter = 0;
         int r = startingRow;
         for (int c = startingCol; c < (startingCol + (WIN_LENGTH+1)); c++) {
@@ -172,14 +170,23 @@ public class BoardGrid {
     }
 
     /**
-     * Initialize each position with default value
-     * (-1 printed as empty string)
+     * Search individual descending diagonal lines.
+     *
+     * @param startingRow Row to start from.
+     * @param startingCol Column to start from.
      */
-    public void initializeMatrix() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                matrix[i][j] = -1;
+    private void searchDescLine(int startingRow, int startingCol) {
+        int counter = 0;
+        int r = startingRow;
+        for (int c = startingCol; c > (startingCol - (WIN_LENGTH+1)); c--) {
+            if (outOfBounds(r, c)) continue;
+            if (matrix[r][c] == playerID) {
+                counter++;
+            } else {
+                counter = 0;
             }
+            if (counter == WIN_LENGTH) gameManager.setWinner(playerID);
+            r--;
         }
     }
 
