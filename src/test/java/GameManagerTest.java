@@ -23,7 +23,6 @@ public class GameManagerTest {
     void setUp() {
         gameManager = new GameManager();
         gameManager.setBoardGrid(grid);
-
         fakeName1 = "Player 1";
         fakeName2 = "Player 2";
         gameManager.addPlayer(fakeName1);

@@ -1,6 +1,5 @@
 package Server.networking;
 
-import Server.BoardGrid;
 import Server.GameManager;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -23,11 +22,11 @@ public class WebServer {
 
     private final int port;
     private HttpServer server;
-    GameManager gameManager;
+    GameManager gameManager = new GameManager();
 
     public WebServer(int port) {
         this.port = port;
-        gameManager = new GameManager();
+        setGameManager(gameManager);
     }
 
     public static void main(String[] args) {
@@ -74,6 +73,7 @@ public class WebServer {
 
     /**
      * Handles server status requests from client.
+     *
      * @param exchange HttpExchange object.
      */
     private void handleStatusCheckRequest(HttpExchange exchange) throws IOException {
@@ -81,40 +81,61 @@ public class WebServer {
             exchange.close();
             return;
         }
-        System.out.println("Called status endpoint.\n");
+        System.out.println("[SERVER] /status endpoint called.\n");
         String responseMessage = "Server is alive!\n";
         sendResponse(responseMessage.getBytes(), exchange);
     }
 
+    /**
+     * Handles requests on the /state endpoint.
+     * Retrieves state-representing data from the GameManager.
+     * Adds information to the Http Response as custom headers.
+     *
+     * @param exchange HttpExchange object
+     */
     private void handleGameStateCheckRequest(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("get")) {
             exchange.close();
             return;
         }
-        System.out.println("Called game state endpoint.\n");
+        System.out.println("[SERVER] /state endpoint called.\n");
         addGameStateToHeaders(exchange);
         String boardState = gameManager.getBoardStateAsText();
         sendResponse(boardState.getBytes(), exchange);
     }
 
+    /**
+     * Handles requests to the /move endpoint.
+     * Extracts client's column choice from request body and
+     * passes information to the GameManager.
+     *
+     * @param exchange HttpExchange object
+     */
     private void handlePlayerMoveRequest(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
             exchange.close();
             return;
         }
-        System.out.println("Called move endpoint.\n");
+        System.out.println("[SERVER] /move endpoint called.\n");
+
         String playerMove = getStringFromRequestBody(exchange);
         int columnChoice = Integer.parseInt(playerMove);
-
         gameManager.handlePlayerMove(columnChoice-1);
+        sendResponse(new byte[0], exchange);
     }
 
+    /**
+     * Handles requests to the /join endpoint.
+     * Adds client to the game if game is not full.
+     *
+     * @param exchange HttpExchange object
+     */
     private void handleJoinRequest(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
             exchange.close();
             return;
         }
-        System.out.println("Called join endpoint.\n");
+        System.out.println("[SERVER] /join endpoint called.\n");
         String responseMessage = "";
 
         if (gameIsFull()) {
@@ -129,37 +150,51 @@ public class WebServer {
         sendResponse(responseMessage.getBytes(), exchange);
     }
 
+    /**
+     * Handles requests made to the /quit endpoint.
+     *
+     * @param exchange HttpExchange object
+     */
     private void handleQuitRequest(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
             exchange.close();
             return;
         }
-        System.out.println("Called quit endpoint\n");
+        System.out.println("[SERVER] /quit endpoint called.\n");
 
         String clientName = getStringFromRequestBody(exchange);
         gameManager.removePlayer(clientName);
         addGameStateToHeaders(exchange);
 
-        String responseMessage = "Shutdown successful.";
-        sendResponse(responseMessage.getBytes(), exchange);
+        sendResponse(new byte[0], exchange);
     }
 
+    /**
+     * Sends our HTTP response back to the client.
+     *
+     * @param responseBytes Response body data.
+     * @param exchange HttpExchange object
+     */
     private void sendResponse(byte[] responseBytes, HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(200, responseBytes.length);
+        if (responseBytes.length == 0) return;
         OutputStream outputStream = exchange.getResponseBody();
         outputStream.write(responseBytes);
         outputStream.flush();
         outputStream.close();
     }
 
+    /**
+     * Retrieves state-representing values from the game manager and adds them
+     * to the HTTP Exchange response headers.
+     */
     private void addGameStateToHeaders(HttpExchange exchange) {
-        // Get the name of player whose turn it is.
-        String name = gameManager.getPlayerTurn();
-        String winner = gameManager.getWinner();
-        String waiting = String.valueOf(!gameIsFull());
-        exchange.getResponseHeaders().put("X-Player-Turn", Collections.singletonList(name));
-        exchange.getResponseHeaders().put("X-Waiting", Collections.singletonList(waiting));
-        exchange.getResponseHeaders().put("X-Winner", Collections.singletonList(winner));
+        exchange.getResponseHeaders().put("X-Player-Turn",
+                Collections.singletonList(gameManager.getPlayerTurn()));
+        exchange.getResponseHeaders().put("X-Waiting",
+                Collections.singletonList(String.valueOf(!gameIsFull())));
+        exchange.getResponseHeaders().put("X-Winner",
+                Collections.singletonList(gameManager.getWinner()));
     }
 
     /**
@@ -175,5 +210,13 @@ public class WebServer {
 
     private boolean gameIsFull() {
         return (gameManager.numberOfPlayers() == 2);
+    }
+
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
+    public void shutdown() {
+        server.stop(0);
     }
 }
