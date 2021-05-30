@@ -67,6 +67,24 @@ public class BoardGrid {
         System.out.println("Column is full.");
     }
 
+    /**
+     * Takes in player ID (0 or 1) or default -1 and returns
+     * the respective character to display on console.
+     *
+     * @param number player ID
+     * @return String 'x', 'o', or ' '.
+     */
+    public String classifySymbol(int number) {
+        switch (number) {
+            case 0:
+                return "x";
+            case 1:
+                return "o";
+            default:
+                return " ";
+        }
+    }
+
     private void checkForWinningLine(int row, int col) {
         searchHorizontally(row);
         searchVertically(row, col);
@@ -87,7 +105,7 @@ public class BoardGrid {
                 return;
             }
         }
-        if (counter == 5) announceWinner();
+        if (counter == WIN_LENGTH) gameManager.setWinner(playerID);
     }
 
     /**
@@ -102,7 +120,7 @@ public class BoardGrid {
             } else {
                 counter = 0;
             }
-            if (counter == WIN_LENGTH) announceWinner();
+            if (counter == WIN_LENGTH) gameManager.setWinner(playerID);
         }
     }
 
@@ -148,17 +166,9 @@ public class BoardGrid {
             } else {
                 counter = 0;
             }
-            if (counter == 5) announceWinner();
+            if (counter == WIN_LENGTH) gameManager.setWinner(playerID);
             r--;
         }
-    }
-
-    private boolean outOfBounds(int row, int col) {
-        return (row < 0 || row > ROWS-1 || col < 0 || col > COLS-1);
-    }
-
-    private boolean winningDiagLineImpossible(int row, int col) {
-        return ((row == 2 || row == 3) && (col == 0 || col == 8));
     }
 
     /**
@@ -173,35 +183,11 @@ public class BoardGrid {
         }
     }
 
-    private void printMatrix() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                String symbol = classifySymbol(matrix[i][j]);
-                System.out.print(String.format("[%s]", symbol));
-            }
-            System.out.println();
-        }
+    private boolean outOfBounds(int row, int col) {
+        return (row < 0 || row > ROWS-1 || col < 0 || col > COLS-1);
     }
 
-    /**
-     * Takes in player ID (0 or 1) or default -1 and returns
-     * the respective character to display on console.
-     *
-     * @param number player ID
-     * @return String 'x', 'o', or ' '.
-     */
-    private String classifySymbol(int number) {
-        switch (number) {
-            case 0:
-                return "x";
-            case 1:
-                return "o";
-            default:
-                return " ";
-        }
-    }
-
-    private void announceWinner() {
-        gameManager.setWinner(playerID);
+    private boolean winningDiagLineImpossible(int row, int col) {
+        return ((row == 2 || row == 3) && (col == 0 || col == 8));
     }
 }

@@ -28,6 +28,7 @@ public class GameRunner {
     private boolean isGameFull = false;
     private boolean displayedWaitingMessage = false;
     private boolean winnerAnnounced = false;
+    private boolean gameOver = false;
     private String serverAddress;
     private String matrixAsText = "";
 
@@ -54,9 +55,10 @@ public class GameRunner {
     }
 
     private void runGame() throws IOException {
-        while (true) {
+        while (!gameOver) {
             try {
-                TimeUnit.SECONDS.sleep(3);
+                int WAIT_TIME = 3;
+                TimeUnit.SECONDS.sleep(WAIT_TIME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -95,7 +97,10 @@ public class GameRunner {
         // recheck response headers
         checkGameState();
         // if opponent has not left (!waiting) - send move
-        if (!waitingForOpponent) client.sendMove(this.serverAddress + MOVE_ENDPOINT, choice.getBytes());
+        if (!waitingForOpponent) {
+            client.sendMove(this.serverAddress + MOVE_ENDPOINT, choice.getBytes());
+            System.out.println("Waiting for opponent...\n");
+        }
         deciding = displayedWaitingMessage = false;
     }
 
@@ -127,6 +132,12 @@ public class GameRunner {
         });
     }
 
+    /**
+     * Displays 'Congratulations'/'Sorry' message depending on
+     * if the winning name from HTTP Header equals our local name.
+     *
+     * @param name The name of the winner as seen in the HTTP Response header.
+     */
     private void announceWinner(String name) {
         String message;
         winnerAnnounced = true;
@@ -177,6 +188,11 @@ public class GameRunner {
     public boolean getIsWinnerAnnounced() { return this.winnerAnnounced; }
 
     public void setServerAddress(String address) { this.serverAddress = address; }
+
+    // Called from ShutdownHook
+    public void endGame() {
+        this.gameOver = true;
+    }
 
     public static GameRunner getInstance() {
         return gameRunner;

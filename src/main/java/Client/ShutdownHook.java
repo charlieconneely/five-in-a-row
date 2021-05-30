@@ -19,6 +19,7 @@ public class ShutdownHook extends Thread {
     public void run() {
         if (clientDidNotJoinGame() || winnerAnnounced()) return;
         System.out.println("Running shutdown hook...");
+        gameRunner.endGame();
         client.sendShutDownRequest(serverAddress, gameRunner.getPlayerName().getBytes());
     }
 

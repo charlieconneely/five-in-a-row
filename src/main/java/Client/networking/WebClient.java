@@ -21,7 +21,7 @@ public class WebClient {
     }
 
     /**
-     * Sends asynchronous requests to the HTTP server.
+     * Sends HTTP POST request to url endpoint and returns the Response body.
      *
      * @param url Server address
      * @param requestPayload Message data
@@ -29,21 +29,38 @@ public class WebClient {
      */
     public CompletableFuture<String> sendTask(String url, byte[] requestPayload) {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
-        // Send our request asynchronously and extract body from HTTP response.
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
     }
 
+    /**
+     * Send HTTP GET request to /state enpoint.
+     *
+     * @param url Server address
+     * @return HttpResponse containing headers with latest information about the game state.
+     */
     public CompletableFuture<HttpResponse<String>> sendGameStateCheck(String url) {
         HttpRequest request = createHttpGetRequest(url);
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    /**
+     * Sends HTTP GET request to /status endpoint.
+     *
+     * @param url Server address
+     * @return String 'Server is alive' confirmation message
+     */
     public CompletableFuture<String> sendStatusCheck(String url) {
         HttpRequest request = createHttpGetRequest(url);
         // Send our request asynchronously and extract body from HTTP response.
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
     }
 
+    /**
+     * Sends HTTP POST request to /move endpoint.
+     *
+     * @param url Server address
+     * @param requestPayload Byte array representing the user chosen column
+     */
     public void sendMove(String url, byte[] requestPayload) {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
