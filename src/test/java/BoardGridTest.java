@@ -15,12 +15,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class BoardGridTest {
 
-    @Mock private GameManager gameManager;
+    @Mock private GameManager mockGameManager;
     private BoardGrid boardGrid;
 
     @BeforeEach
     void setUp() {
-        boardGrid = new BoardGrid(gameManager);
+        boardGrid = new BoardGrid(mockGameManager);
     }
 
     @Test
@@ -28,7 +28,9 @@ public class BoardGridTest {
     void makeMove() {
         int column = 8;
         int playerID = 0;
+        // when
         boardGrid.makeMove(column, playerID);
+        // then
         assertEquals(playerID, boardGrid.getValueAtPosition(5, column));
 
         // make another move on the same position
@@ -42,20 +44,24 @@ public class BoardGridTest {
     void makeFiveMovesOnSameColumn() {
         int column = 2;
         int playerID = 1;
+        // when
         for (int i = 0; i < 5; i++) {
             boardGrid.makeMove(column, playerID);
         }
-        verify(gameManager).setWinner(playerID);
+        // then
+        verify(mockGameManager).setWinner(playerID);
     }
 
     @Test
     @DisplayName("setWinner is called with playerID 0 when five vert x's exist.")
     void makeFiveMovesOnSameRow() {
         int playerID = 0;
+        // when
         for (int col = 0; col < 5; col++) {
             boardGrid.makeMove(col, playerID);
         }
-        verify(gameManager).setWinner(playerID);
+        // then
+        verify(mockGameManager).setWinner(playerID);
     }
 
     @Test
@@ -64,6 +70,7 @@ public class BoardGridTest {
         int playerID = 0;
         int startingCol = 1;
         int count = 1;
+        // when
         // Create the stairs for a diagonal line of value playerID
         for (int col = startingCol; col < (startingCol+4); col++) {
             for (int i = 0; i < count; i++) {
@@ -75,7 +82,8 @@ public class BoardGridTest {
         for (int col = 0; col < 5; col++) {
             boardGrid.makeMove(col, playerID);
         }
-        verify(gameManager).setWinner(playerID);
+        // then
+        verify(mockGameManager).setWinner(playerID);
     }
 
     @Test
@@ -84,6 +92,7 @@ public class BoardGridTest {
         int playerID = 0;
         int startingCol = 7;
         int count = 1;
+        // when
         // Create the stairs for a diagonal line of value playerID
         for (int col = startingCol; col > (startingCol-4); col--) {
             for (int i = 0; i < count; i++) {
@@ -95,6 +104,7 @@ public class BoardGridTest {
         for (int col = 8; col > 3; col--) {
             boardGrid.makeMove(col, playerID);
         }
-        verify(gameManager).setWinner(playerID);
+        //then
+        verify(mockGameManager).setWinner(playerID);
     }
 }

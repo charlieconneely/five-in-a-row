@@ -15,14 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class GameManagerTest {
 
-    @Mock private BoardGrid grid;
+    @Mock private BoardGrid mockBoardGrid;
     private GameManager gameManager;
     private String fakeName1, fakeName2;
 
     @BeforeEach
     void setUp() {
         gameManager = new GameManager();
-        gameManager.setBoardGrid(grid);
+        gameManager.setBoardGrid(mockBoardGrid);
         fakeName1 = "Player 1";
         fakeName2 = "Player 2";
         gameManager.addPlayer(fakeName1);
@@ -41,18 +41,21 @@ public class GameManagerTest {
     void handlesPlayerMove() {
         int column = 2;
         int initialPlayerTurn = 0;
+        // when
         gameManager.handlePlayerMove(column);
-        verify(grid).makeMove(column, initialPlayerTurn);
+        // then
+        verify(mockBoardGrid).makeMove(column, initialPlayerTurn);
         assertEquals(fakeName2, gameManager.getPlayerTurn());
     }
 
     @Test
     @DisplayName("removePlayer calls grid.initialiseMatrix and set playerTurn to 0")
     void checkRemovePlayer() {
+        // when
         gameManager.removePlayer(fakeName2);
         // players list size should now be 1
         assertEquals(1, gameManager.numberOfPlayers());
-        verify(grid).initializeMatrix();
+        verify(mockBoardGrid).initializeMatrix();
         assertEquals(fakeName1, gameManager.getPlayerTurn());
     }
 }

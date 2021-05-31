@@ -76,7 +76,7 @@ public class WebClient {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
         System.out.println("Shutting down...");
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("[CLIENT]" + response.body());
+        System.out.println(response.body());
     }
 
     /**

@@ -4,6 +4,9 @@ import Client.networking.WebClient;
 
 import java.io.IOException;
 
+/**
+ * Performs cleanup operations when the application quits suddenly.
+ */
 public class ShutdownHook extends Thread {
 
     private static final String SHUTDOWN_ENDPOINT = "/quit";

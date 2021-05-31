@@ -106,10 +106,11 @@ public class GameRunner {
 
     private String requestColumnChoice() throws IOException {
         String chosenColumn = "-1";
-        String message = String.format("It's your turn %s, please enter column (1-9): ", player.getName());
+        String message = String.format("It's your turn %s, please enter column (1-9) or Q to quit: ", player.getName());
         while (Integer.parseInt(chosenColumn) > 9 ||
                 Integer.parseInt(chosenColumn) < 1) {
             chosenColumn = getInput(message);
+            if (chosenColumn.equalsIgnoreCase("q")) System.exit(0);
         }
         return chosenColumn;
     }
