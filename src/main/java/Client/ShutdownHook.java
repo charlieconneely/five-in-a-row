@@ -2,6 +2,8 @@ package Client;
 
 import Client.networking.WebClient;
 
+import java.io.IOException;
+
 public class ShutdownHook extends Thread {
 
     private static final String SHUTDOWN_ENDPOINT = "/quit";
@@ -20,7 +22,11 @@ public class ShutdownHook extends Thread {
         if (clientDidNotJoinGame() || winnerAnnounced()) return;
         System.out.println("Running shutdown hook...");
         gameRunner.endGame();
-        client.sendShutDownRequest(serverAddress, gameRunner.getPlayerName().getBytes());
+        try {
+            client.sendShutDownRequest(serverAddress, gameRunner.getPlayerName().getBytes());
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean winnerAnnounced() {

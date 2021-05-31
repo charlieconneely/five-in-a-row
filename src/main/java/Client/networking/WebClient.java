@@ -72,14 +72,11 @@ public class WebClient {
      * @param url Server address
      * @param requestPayload Message data
      */
-    public void sendShutDownRequest(String url, byte[] requestPayload) {
+    public void sendShutDownRequest(String url, byte[] requestPayload) throws IOException, InterruptedException {
         HttpRequest request = createHttpPostRequest(url, requestPayload);
         System.out.println("Shutting down...");
-        try {
-            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("[CLIENT]" + response.body());
     }
 
     /**

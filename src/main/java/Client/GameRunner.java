@@ -189,7 +189,7 @@ public class GameRunner {
 
     public void setServerAddress(String address) { this.serverAddress = address; }
 
-    // Called from ShutdownHook
+    // Called from ShutdownHook. Ends loop in runGame()
     public void endGame() {
         this.gameOver = true;
     }

@@ -164,8 +164,8 @@ public class WebServer {
         String clientName = getStringFromRequestBody(exchange);
         gameManager.removePlayer(clientName);
         addGameStateToHeaders(exchange);
-
-        sendResponse(new byte[0], exchange);
+        String responseMessage = "Successfully shutdown.";
+        sendResponse(responseMessage.getBytes(), exchange);
     }
 
     /**
