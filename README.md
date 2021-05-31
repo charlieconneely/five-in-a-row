@@ -26,7 +26,7 @@ A short of clip of the gameplay can be found [here](https://youtu.be/OXCla1QqVjg
 ***
 ### Installation 
 ```
-git clone <repo>
+git clone https://github.com/charlieconneely/five-in-a-row.git
 cd five-in-a-row
 mvn clean install 
 ```
