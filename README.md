@@ -21,13 +21,14 @@ first player to reach five in a row wins. <br>
 If one client quits in the middle of a game, the other will see "Waiting for
 opponent to join...". If another client joins, the game will restart. 
 
+***
 ### Installation 
 ```
 git clone <repo>
 cd five-in-a-row
 mvn clean install 
 ```
-
+***
 ### Running the program from CLI (on Windows)
 From inside `/five-in-a-row`:
 
@@ -50,18 +51,18 @@ port 8082.
 
 To test the application from an IDE, run the main methods inside 
 `Server/networking/WebServer.java` and `Client/Application.java`.
-
+***
 ### Testing
 All unit tests are stored inside `src/test/java`. These cover:
 - Server/BoardGrid.java
 - Server/GameManager.java
 - Server/networking/WebServer.java
 - Client/networking/WebClient.java
-
+***
 ### Future Work
 - Increase test coverage on the client side.
 - Implement Behaviour/Integration testing. 
-
+***
 ### Dependencies
 - [Apache Maven 3.8.1](https://maven.apache.org/)
 - [Java HttpServer](https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/HttpServer.html)
