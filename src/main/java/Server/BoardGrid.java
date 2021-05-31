@@ -1,5 +1,9 @@
 package Server;
 
+/**
+ * Stores the game board as a 2d array.
+ * Handles all operations such as adding a disc and searching for winning lines.
+ */
 public class BoardGrid {
 
     private final int WIN_LENGTH = 5;
@@ -194,6 +198,10 @@ public class BoardGrid {
         return (row < 0 || row > ROWS-1 || col < 0 || col > COLS-1);
     }
 
+    /**
+     * Checks if position (row, col) is one of the 4 positions at which
+     * a winning diagonal line of five cannot exist.
+     */
     private boolean winningDiagLineImpossible(int row, int col) {
         return ((row == 2 || row == 3) && (col == 0 || col == 8));
     }

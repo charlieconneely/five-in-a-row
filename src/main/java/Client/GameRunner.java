@@ -10,6 +10,12 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Gets the necessary input from Client.
+ * Sends data to WebClient to be communicated across the network.
+ * Executes a while loop that calls for a state update from the server every 3 seconds.
+ * Performs operations depending on the game state on the server.
+ */
 public class GameRunner {
     private static GameRunner gameRunner = new GameRunner();
 

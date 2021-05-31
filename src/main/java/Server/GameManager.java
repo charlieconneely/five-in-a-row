@@ -3,6 +3,10 @@ package Server;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Communicates the game state with the WebServer class.
+ * Manages the game (stores names, whose turn it is, who quit, who won etc.)
+ */
 public class GameManager {
 
     List<String> players = new ArrayList<>();
@@ -15,6 +19,11 @@ public class GameManager {
         setBoardGrid(boardGrid);
     }
 
+    /**
+     * Returns a string containing all player names in the list.
+     *
+     * @return String all players
+     */
     public String getPlayers() {
         String allPlayers = "";
         for (String p : players) {

@@ -11,6 +11,9 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 
+/**
+ * Handles our HTTP communication with the client.
+ */
 public class WebServer {
 
     private static final int DEFAULT_PORT = 8082;
