@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 public class Application {
 
     private static final String SERVER_ADDRESS = "http://localhost:";
-    private static final int DEFAULT_PORT = 8081;
+    private static final int DEFAULT_PORT = 8082;
     private static final String STATUS_ENDPOINT = "/status";
 
     WebClient client;

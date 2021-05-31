@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class WebServer {
 
-    private static final int DEFAULT_PORT = 8081;
+    private static final int DEFAULT_PORT = 8082;
     private static final String STATUS_ENDPOINT = "/status";
     private static final String JOIN_ENDPOINT = "/join";
     private static final String GAME_STATE_ENDPOINT = "/state";
@@ -145,8 +145,7 @@ public class WebServer {
         }
         String clientName = getStringFromRequestBody(exchange);
         gameManager.addPlayer(clientName);
-        responseMessage = String.format("Player %s has joined!\nAll players: %s\n",
-                clientName, gameManager.getPlayers());
+        responseMessage = String.format("\nAll players: %s\n", gameManager.getPlayers());
         sendResponse(responseMessage.getBytes(), exchange);
     }
 

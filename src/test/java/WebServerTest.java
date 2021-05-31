@@ -24,14 +24,14 @@ import java.util.Arrays;
 @ExtendWith(MockitoExtension.class)
 public class WebServerTest {
 
-    private final String serverAddress = "http://localhost:8080";
+    private final String serverAddress = "http://localhost:8099";
 
     private WebServer webServer;
     @Mock private GameManager mockGameManager;
 
     @BeforeEach
     void setUp() {
-        webServer = new WebServer(8080);
+        webServer = new WebServer(8099);
         webServer.setGameManager(mockGameManager);
         webServer.startServer();
     }
