@@ -21,6 +21,8 @@ first player to reach five in a row wins. <br>
 If one client quits in the middle of a game, the other will see "Waiting for
 opponent to join...". If another client joins, the game will restart. 
 
+A short of clip of the gameplay can be found [here](https://youtu.be/OXCla1QqVjg).
+
 ***
 ### Installation 
 ```
